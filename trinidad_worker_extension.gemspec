@@ -16,13 +16,14 @@ Gem::Specification.new do |gem|
   scripts can be used as well.}
 
   gem.files         = `git ls-files`.split("\n")
-  gem.test_files    = `git ls-files -- test/*`.split("\n")
+  gem.test_files    = `git ls-files -- test/* spec/*`.split("\n")
   
   gem.extra_rdoc_files = %w[ README.md LICENSE ]
   
   gem.require_paths = ["lib"]
   gem.add_dependency 'trinidad', ">= 1.4.1"
-  gem.add_dependency 'jruby-rack-worker', ">= 0.6"
-  gem.add_development_dependency 'test-unit'
+  gem.add_dependency 'jruby-rack-worker', ">= 0.7"
+  gem.add_development_dependency 'rspec', '~> 2.10'
   gem.add_development_dependency 'mocha'
+  gem.add_development_dependency 'rake'
 end

@@ -1,0 +1,30 @@
+---
+  environment: production
+  port: 4444
+  trap: false
+  extensions:
+    worker:
+      delayed_job: # jruby.worker
+        #script: "require 'sample/resque_worker'; Sample::ResqueWorker.start"
+        #script_path: sample/start_resque_worker.rb
+        thread_count: 2 # jruby.worker.thread.count
+        # DJ specific :
+        #QUEUE: all
+        READ_AHEAD: 3
+        SLEEP_DELAY: 3.0
+#      resque: # jruby.worker
+#        #script: "require 'sample/resque_worker'; Sample::ResqueWorker.start"
+#        #script_path: sample/start_resque_worker.rb
+#        thread_priority: MIN # jruby.worker.thread.priority
+#        # Rescue specific :
+#        QUEUES: low,normal
+#        INTERVAL: 1.5
+#        VERBOSE: true
+#    worker:
+#      resque: # jruby.worker
+#        #script: "require 'sample/resque_worker'; Sample::ResqueWorker.start"
+#        #script_path: sample/start_resque_worker.rb
+#        thread_priority: MIN # jruby.worker.thread.priority
+#      sample: # jruby.worker
+#        script: "require 'sample/resque_worker'; Sample::ResqueWorker.start"
+#        thread_count: 2 # jruby.worker.thread.count
