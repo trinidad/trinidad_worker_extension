@@ -42,7 +42,6 @@ module Trinidad
             return
           end
         end
-        load_worker_jar # load when first worker setup
         config.each do |key, value|
           case key.to_s
           when 'thread_count'
@@ -54,12 +53,25 @@ module Trinidad
             context.add_parameter(key.to_s, value.to_s)
           end
         end
+        context.add_lifecycle_listener listener = WorkerLifecycle.new
+        listener
       end
       
-      private
+      CONTEXT_LISTENER = 'org.kares.jruby.rack.WorkerContextListener'
       
-      def load_worker_jar
-        JRuby::Rack::Worker.load_jar(:require)
+      class WorkerLifecycle < Trinidad::Lifecycle::Base
+        
+        def configure_start(event)
+          context = event.lifecycle
+          jar_file = java.io.File.new JRuby::Rack::Worker::JAR_PATH
+          context.loader.class_loader.addURL jar_file.to_url
+          # NOTE: it's important for this listener to be added after
+          # the Rack setup as it expectd to find the RackFactory ...
+          # that's why we hook into #configure_start which happens
+          # right after #before_start but before the actual #start !
+          context.add_application_listener CONTEXT_LISTENER
+        end
+        
       end
       
     end

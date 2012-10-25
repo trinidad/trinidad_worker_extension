@@ -4,7 +4,7 @@ Background Workers for [Trinidad](https://github.com/trinidad/trinidad/) running
 as background (daemon) threads along side your Rack/Rails deployed application.
 
 Built upon https://github.com/kares/jruby-rack-worker thus supports popular 
-worker libraries such as **Resque** and **Delayed::Job** out of the box.
+worker libraries such as **Resque** and **Delayed::Job**.
 
 ## Install
 
