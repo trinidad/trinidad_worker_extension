@@ -12,13 +12,14 @@ describe Trinidad::Extensions::WorkerWebAppExtension do
 
     Trinidad::Extensions.configure_webapp_extensions(web_app.extensions, tomcat, context)
     
-    params = parameters(context)
+    it_includes_worker_lifecycle_listener(context)
+    
+    listener = worker_lifecycle_listener_for(context)
+    params = listener.context_parameters
     expect( params['jruby.worker'] ).to eql 'delayed_job'
     expect( params['jruby.worker.thread.count'] ).to eql '2'
     expect( params['READ_AHEAD'] ).to eql '3'
     expect( params['SLEEP_DELAY'] ).to eql '3.0'
-    
-    it_includes_worker_lifecycle_listener(context)
   end
 
   it "configures (resque) worker" do
@@ -27,17 +28,18 @@ describe Trinidad::Extensions::WorkerWebAppExtension do
     
     Trinidad::Extensions.configure_webapp_extensions(web_app.extensions, tomcat, context)
     
-    params = parameters(context)
+    it_includes_worker_lifecycle_listener(context)
+    
+    listener = worker_lifecycle_listener_for(context)
+    params = listener.context_parameters
     expect( params['jruby.worker'] ).to eql 'resque'
     expect( params['jruby.worker.thread.priority'] ).to eql 'MIN'
     expect( params['QUEUES'] ).to eql 'low,normal'
     expect( params['INTERVAL'] ).to eql '1.5'
     expect( params['VERBOSE'] ).to eql 'true'
-    
-    it_includes_worker_lifecycle_listener(context)
   end
   
-  describe 'WorkerLifecycle' do
+  describe 'WorkerLifecycle', :integration => true do
     
     before do
       Trinidad.configure! { load File.join(APP_DIR, 'trinidad.rb') }
@@ -54,17 +56,31 @@ describe Trinidad::Extensions::WorkerWebAppExtension do
       @context.start
     end
     
-    it "configures worker context listener" do
+    it "configures worker context listener and init params" do
       class_name = 'org.kares.jruby.rack.WorkerContextListener'
       expect( @context.find_application_listeners ).to include class_name
+      expect( @context.servlet_context.get_init_parameter('jruby.worker') ).to eql 'resque'
+      expect( @context.servlet_context.get_init_parameter('QUEUES') ).to eql 'low,normal'
+    end
+
+    it "re-configures on reload" do
+      @context.reload
+      class_name = 'org.kares.jruby.rack.WorkerContextListener'
+      expect( @context.find_application_listeners ).to include class_name
+      expect( @context.servlet_context.get_init_parameter('jruby.worker') ).to eql 'resque'
+      expect( @context.servlet_context.get_init_parameter('QUEUES') ).to eql 'low,normal'
     end
     
   end
   
   def it_includes_worker_lifecycle_listener(context)
+    expect( worker_lifecycle_listener_for(context) ).to_not be nil
+  end
+  
+  def worker_lifecycle_listener_for(context)
     listeners = context.find_lifecycle_listeners
     klass = Trinidad::Extensions::WorkerWebAppExtension::WorkerLifecycle
-    expect( listeners.find { |l| l.is_a?(klass) } ).to_not be nil
+    listeners.find { |l| l.is_a?(klass) }
   end
   
   protected
