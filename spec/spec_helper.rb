@@ -1,12 +1,12 @@
 begin
-  require 'bundler/setup'
+  require 'bundler'
 rescue LoadError => e
   require('rubygems') && retry
   raise e
 end
+Bundler.require(:default, :test)
 
 require 'rspec'
-require 'mocha'
 
 lib = File.expand_path('../lib', File.dirname(__FILE__))
 $: << lib unless $:.include?(lib)

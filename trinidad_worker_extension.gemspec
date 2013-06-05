@@ -21,9 +21,8 @@ Gem::Specification.new do |gem|
   gem.extra_rdoc_files = %w[ README.md LICENSE ]
   
   gem.require_paths = ["lib"]
-  gem.add_dependency 'trinidad', ">= 1.4.1"
-  gem.add_dependency 'jruby-rack-worker', ">= 0.7"
-  gem.add_development_dependency 'rspec', '~> 2.10'
-  gem.add_development_dependency 'mocha'
+  gem.add_dependency 'trinidad', ">= 1.4.4"
+  gem.add_dependency 'jruby-rack-worker', ">= 0.9"
+  gem.add_development_dependency 'rspec', '~> 2.11'
   gem.add_development_dependency 'rake'
 end
