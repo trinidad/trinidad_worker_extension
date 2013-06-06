@@ -67,8 +67,9 @@ Trinidad.configure do |config|
         :thread_priority => 4, # bit bellow NORM (5)
         'QUEUES' => ['*'],
         'INTERVAL' => 2.5, # default is 5.0
-        'VERBOSE' => true, # verbose logging
-        #'VVERBOSE' => true, # very_verbose logging
+        'LOGGING' => 'info',
+        #'VERBOSE' => true, # verbose logging (info)
+        #'VVERBOSE' => true, # very_verbose logging (debug)
       }
   }
 end
