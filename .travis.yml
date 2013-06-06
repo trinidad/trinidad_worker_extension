@@ -1,0 +1,10 @@
+language: ruby
+rvm:
+  - jruby-18mode
+  - jruby-19mode
+branches:
+  only:
+    - master
+services:
+  - redis-server
+
