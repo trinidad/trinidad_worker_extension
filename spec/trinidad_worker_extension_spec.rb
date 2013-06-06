@@ -2,7 +2,7 @@ require File.expand_path('spec_helper', File.dirname(__FILE__))
 require 'yaml'
 
 describe Trinidad::Extensions::WorkerWebAppExtension do
-  
+
   APP_DIR = File.expand_path('app', File.dirname(__FILE__))
 
   it "configures (delayed) worker" do
@@ -11,9 +11,9 @@ describe Trinidad::Extensions::WorkerWebAppExtension do
     web_app = create_web_app; context = create_web_app_context(web_app)
 
     Trinidad::Extensions.configure_webapp_extensions(web_app.extensions, tomcat, context)
-    
+
     it_includes_worker_lifecycle_listener(context)
-    
+
     listener = worker_lifecycle_listener_for(context)
     params = listener.context_parameters
     expect( params['jruby.worker'] ).to eql 'delayed_job'
@@ -25,22 +25,22 @@ describe Trinidad::Extensions::WorkerWebAppExtension do
   it "configures (resque) worker" do
     Trinidad.configure! { load File.join(APP_DIR, 'trinidad.rb') }
     web_app = create_web_app; context = create_web_app_context(web_app)
-    
+
     Trinidad::Extensions.configure_webapp_extensions(web_app.extensions, tomcat, context)
-    
+
     it_includes_worker_lifecycle_listener(context)
-    
+
     listener = worker_lifecycle_listener_for(context)
     params = listener.context_parameters
     expect( params['jruby.worker'] ).to eql 'resque'
     expect( params['jruby.worker.thread.priority'] ).to eql 'MIN'
     expect( params['QUEUES'] ).to eql 'low,normal'
     expect( params['INTERVAL'] ).to eql '1.5'
-    expect( params['VERBOSE'] ).to eql 'true'
+    expect( params['LOGGING'] ).to eql 'debug'
   end
-  
+
   describe 'WorkerLifecycle', :integration => true do
-    
+
     before do
       Trinidad.configure! { load File.join(APP_DIR, 'trinidad.rb') }
       @web_app = create_web_app; @context = create_web_app_context(@web_app)
@@ -51,11 +51,11 @@ describe Trinidad::Extensions::WorkerWebAppExtension do
       @lifecycle = listeners.find { |l| l.is_a?(klass) }
       # do what Trinidad server startup would :
       @context.add_lifecycle_listener(@web_app.define_lifecycle)
-      
+
       #@event = mock('event'); @event.stub!(:lifecycle).and_return @context
       @context.start
     end
-    
+
     it "configures worker context listener and init params" do
       class_name = 'org.kares.jruby.rack.WorkerContextListener'
       expect( @context.find_application_listeners ).to include class_name
@@ -70,29 +70,29 @@ describe Trinidad::Extensions::WorkerWebAppExtension do
       expect( @context.servlet_context.get_init_parameter('jruby.worker') ).to eql 'resque'
       expect( @context.servlet_context.get_init_parameter('QUEUES') ).to eql 'low,normal'
     end
-    
+
   end
-  
+
   def it_includes_worker_lifecycle_listener(context)
     expect( worker_lifecycle_listener_for(context) ).to_not be nil
   end
-  
+
   def worker_lifecycle_listener_for(context)
     listeners = context.find_lifecycle_listeners
     klass = Trinidad::Extensions::WorkerWebAppExtension::WorkerLifecycle
     listeners.find { |l| l.is_a?(klass) }
   end
-  
+
   protected
-  
+
   def parameters(context)
     context.find_parameters.inject({}) do |hash, name|
       hash[name] = context.find_parameter(name); hash
     end
   end
-  
+
   private
-  
+
   def tomcat
     @tomcat ||= org.apache.catalina.startup.Tomcat.new
   end
@@ -113,5 +113,5 @@ describe Trinidad::Extensions::WorkerWebAppExtension do
     context.addLifecycleListener lifecycle if lifecycle
     context
   end
-      
+
 end
