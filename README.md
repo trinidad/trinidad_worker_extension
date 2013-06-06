@@ -3,7 +3,7 @@
 Background Workers for [Trinidad](https://github.com/trinidad/trinidad/) running
 as background (daemon) threads along side your Rack/Rails deployed application.
 
-Built upon https://github.com/kares/jruby-rack-worker thus supports popular 
+Built upon https://github.com/kares/jruby-rack-worker thus supports popular
 worker libraries such as **Resque** and **Delayed::Job**.
 
 ## Install
@@ -29,6 +29,12 @@ Or install it yourself as a plain old gem :
 ## Configure
 
 Like all extensions set it up in the configuration file (e.g. *trinidad.yml*).
+
+**NOTE:** The extension will not be configuring workers threads to start when
+running in **rackup** mode (e.g. `rails s`) because it expects JRuby-Rack to be
+not loaded in the embedded mode. Running Trinidad using `rackup` is mostly
+suitable for development/testing thus this is not seen as a limitation (simply
+start `trinidad -e staging` to check whether your workers are doing fine).
 
 ### Delayed::Job
 
@@ -86,7 +92,7 @@ The following start script will be executed in each Thread http://git.io/XglTpw
 ```
 
 If you'd like to specify custom parameters you can do so within the configuration
-file or the deployment descriptor as context init parameters or as java system 
+file or the deployment descriptor as context init parameters or as java system
 properties, use the following code to obtain them in your code :
 
 ```ruby
@@ -100,5 +106,5 @@ worker.queues = (env['QUEUES']).split(',')
 
 ## Copyright
 
-Copyright (c) 2012 [Karol Bucek](https://github.com/kares). 
+Copyright (c) 2013 [Karol Bucek](https://github.com/kares).
 See LICENSE (http://en.wikipedia.org/wiki/MIT_License) for details.
