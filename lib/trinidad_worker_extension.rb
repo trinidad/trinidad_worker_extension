@@ -26,10 +26,15 @@ module Trinidad
       protected
 
       def configure_worker(context, name, config)
-        config = config.dup
-        params = {}
+        config = config.dup; params = {}
         if script = config.delete(:script)
-          params['jruby.worker.script'] = script
+          if File.exists?(script)
+            context.logger.warn "Seems you've set :script to an actual file path: " <<
+            "'#{script}' please use :script_path instead to make this warning go away"
+            params['jruby.worker.script.path'] = script
+          else
+            params['jruby.worker.script'] = script
+          end
         end
         if script_path = config.delete(:script_path)
           params['jruby.worker.script.path'] = script_path
@@ -66,9 +71,7 @@ module Trinidad
 
         def initialize(params)
           @context_parameters = params || {}
-          if @context_parameters.empty?
-            raise ArgumentError, "no context parameters"
-          end
+          raise ArgumentError, "no context parameters" if @context_parameters.empty?
         end
 
         def configure_start(event)
