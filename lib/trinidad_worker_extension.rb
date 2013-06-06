@@ -8,11 +8,11 @@ module Trinidad
 
       def configure(context)
         if ! options || options.size == 0
-          context.logger.info "no worker(s) seems to be configured"
+          context.logger.info "No worker(s) seems to be configured"
         else
           worker_config = options.first
           if options.size > 1
-            context.logger.info "currently only 1 worker configuration per " +
+            context.logger.info "Currently only 1 worker configuration per " <<
             "web-app is supported, will use first: #{worker_config.inspect}"
           end
           if worker_config.is_a?(Array) # [ key, val ]
@@ -24,7 +24,7 @@ module Trinidad
       end
 
       protected
-      
+
       def configure_worker(context, name, config)
         config = config.dup
         params = {}
@@ -38,7 +38,7 @@ module Trinidad
           if name
             params['jruby.worker'] = name.to_s
           else
-            context.logger.warn "not-starting any workers due missing configuration " + 
+            context.logger.warn "Not starting any workers due missing configuration " <<
             "either set :script or :script_path if you're not using a built-in worker"
             return
           end
@@ -57,22 +57,28 @@ module Trinidad
         context.add_lifecycle_listener listener = WorkerLifecycle.new(params)
         listener
       end
-      
+
       CONTEXT_LISTENER = 'org.kares.jruby.rack.WorkerContextListener'
-      
+
       class WorkerLifecycle < Trinidad::Lifecycle::Base
-        
+
         attr_reader :context_parameters
-        
+
         def initialize(params)
           @context_parameters = params || {}
           if @context_parameters.empty?
             raise ArgumentError, "no context parameters"
           end
         end
-        
+
         def configure_start(event)
           context = event.lifecycle
+          configure = context.findApplicationListeners.any? # in rackup mode empty
+          configure ||= Java::JavaLang::Boolean.getBoolean('trinidad.extensions.worker')
+          unless configure
+            context.logger.info "Skipped configuration of worker extension (due rackup mode)"
+            return
+          end
           add_context_parameters(context)
           add_class_loader_jar_url(context)
           # NOTE: it's important for this listener to be added after
@@ -81,9 +87,9 @@ module Trinidad
           # right after #before_start but before the actual #start !
           add_application_listener(context)
         end
-        
+
         protected
-        
+
         def add_context_parameters(context)
           app_params = context.find_application_parameters
           context_parameters.each do |name, value|
@@ -98,7 +104,7 @@ module Trinidad
             end
           end
         end
-        
+
         def add_class_loader_jar_url(context)
           jar_file = java.io.File.new JRuby::Rack::Worker::JAR_PATH
           class_loader = context.loader.class_loader
@@ -106,16 +112,16 @@ module Trinidad
             class_loader.addURL jar_file.to_url
           end
         end
-        
+
         def add_application_listener(context)
           listener = CONTEXT_LISTENER
           unless context.find_application_listeners.include?(listener)
             context.add_application_listener listener
           end
         end
-        
+
       end
-      
+
     end
   end
 end
