@@ -86,7 +86,7 @@ The following start script will be executed in each Thread http://git.io/XglTpw
     worker:
       custom:
         #script: require 'my_worker'; MyWorker.start
-        script.path: "lib/my_worker/start_worker.rb"
+        script_path: "lib/my_worker/start_worker.rb"
         # all settings here are optional
         #thread_count: 1
         #thread_priority: NORM
